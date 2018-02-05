@@ -1,2 +1,2 @@
 # NCP
-Thisis my repo for Network Centric Programming Spring 2018
+This is my repo for Network Centric Programming Spring 2018
