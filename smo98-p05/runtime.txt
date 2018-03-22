@@ -1,0 +1,21 @@
+File was 'Lorem ipsem dolor' random text repeated over 10MB file,
+searched for 'lorem', occurred 7600 times
+
+Results of timing:
+
+With fread():
+real 0.124s
+user 0.076s
+sys  0.048s
+
+With systemcalls:
+real 3.3137s
+user 0.336s
+sys  2.800s
+
+Two major observations can be determined from looking at these results: for one, the use of direct systemcalls causes overall time to completion to increase from 0.124s to 3.3137s, which is a significant slowdown. Next, system calls take up a much greater relative portion of execution time in the version using direct syscalls for reads. 
+
+My major takeaway from this is that it's better to leave systemcalls abstracted away behind their appropriate libraries, as manual usage can not only be hazardous, but it can be inefficient as well.
+
+
+
