@@ -1,10 +1,57 @@
+
+
 # C Functions
 
 
 
 ## Basic
 
+`printf`
 
+`strcmp(char * a, char * b)`: ***Care! Returns 0 for equality***
+
+`#include <stdio.h>`
+
+`#include <unistd.h>`
+
+`#include <stdlib.h>`
+
+
+
+Structs (in this case a linkedList node)
+
+```c
+typedef struct Name
+{
+	char * stringVal;
+	int intVal;
+	struct Name * next;
+} Name
+```
+
+
+
+To iterate through chars in a string
+
+```c
+while(c!=NULL&& *c!='\0){ //the null terminated check only important for String library I think
+	printf("%c\n",c*);
+    c++;
+}
+```
+
+
+
+Ways of defining string
+
+```c
+char * arr = calloc(1,sz+1); 
+char *arr[sz+1];
+
+if(arr) free(arr);
+```
+
+^Don't forget to free all new'ed or malloc'ed vars!
 
 ## I/O
 
@@ -18,19 +65,33 @@
 
 `fclose(FILE* stream)`
 
-`fread`
+`int fread(void *ptr, int size, int nmemb, FILE *stream)`
 
-`fwrite`
+`int fwrite( void *ptr, int size, int nmemb, FILE * stream)`
 
-`fgetc/fputc`
+`fgetc/fputc(char *str, FILE *stream) `
 
-`fgets/fputs`
+`fprintf(FILE * stream, char * str, char* info)` this is if you need string formatting
+
+`fgets/fputs(char * str, int num, FILE *stream)`
 
 `int fseek(FILE *fp, long offset, int whence)`
 
 `long ftell(FILE *fp)`
 
 `void rewind(FILE *fp)`
+
+
+
+To tell the size of file, then read that in:
+
+```c
+fseek(fp, 0L, SEEK_END);
+int sz = ftell(fp);
+rewind(fp);
+
+if(1!=fread(arr,sz,1,fp))
+```
 
 
 
@@ -42,9 +103,106 @@
 
 `int listen(int sockfd, int backlog)`
 
+`int accept(int listenfd, struct sockaddr *addr, int *addrlen)`
+
+`int connect(int sockfd, struct sockaddr *serv_addr, int addrlen)`
+
+
+
+Code to read in a request from the browser
+
+```c
+int listenfd, browserfd, port;
+socklen_t clientlen;
+struct sockaddr_in clientaddr;
+char buffer[MAXLINE];
+
+//assume port came from argv
+listenfd = Open_listenfd(port);
+
+while(1){
+    clientlen = sizeof(clientaddr);     
+    browserfd = Accept(listenfd, (SA *), &clientaddr, &clientlen);    
+    bytesRead = read(browserfd, buffer, sizeof(buffer)); //this is blocking  
+   
+}
+
+```
+
+
+
+Code to make a request to a foreign server
+
+```c
+int serverfd = open_clientfd(reqHost, portno); //int port
+
+if(write(serverfd,buffer,bytesRead)<0){
+    perror("write");
+    exit(-1);
+}
+
+int bytesRead = 0;
+int lastRead = 0;
+
+//while there is something left to read, read it and write it back to the browser
+while((lastRead = read(serverfd,buffer,MAXLINE))>0){
+    if(write(browserfd,buffer,lastRead)<0){
+        perror("write");
+        exit(-1);
+    }
+    
+    bytesRead += lastRead;
+}
+```
+
 ## Threads/Processes
 
+`int fork()`
 
+- for parent, return is PID of child
+- for child, return is 0
+
+`exec()`
+
+- p/v/e
+  - p: search current execution path
+  - v: accept arg list as vectory of pointers
+  - e: an array of pointers to env vars is passed\
+
+`exit(int returnCode)`: to tell how execution went
+
+`pid_t wait(int *status)`
+
+`pid_t waitpid(pid_t pis, int *status, int options)`
+
+`extern char ** environ`
+
+
+
+`int pthread_create(pthread_t *tid, pthread_attr_t *attr, func *f, void *arg)`
+
+```
+void * thread_handle(void *vargp){
+    char buffer[1024] = {0};
+    int connfd = *((int *)vargp);
+    
+    close(connfd); //gotta be careful to close this in the thread
+}
+```
+
+
+
+`pthread_t pthread_self(void)` 
+
+let's the new thread become selfaware
+
+
+
+`void pthread_exit(void *thread_return)` usually just automatically called by return vals
+
+`int pthread_join(pthread_t tid, void **thread_return)`: blocking
+
+`int pthread_detach(pthread_t tid)` if you don't care about the results
 
 # Psuedocode
 

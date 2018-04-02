@@ -65,13 +65,6 @@ int searchSubstr(char * document,char* substr){
 			oldItem = currItem;
 		}
 
-		//printf("one iteration of searching, index: %d\n", index);
-		/*if(index+1>=length){
-			printf("gonna break the loop\n");
-			break;
-		}else{
-			//printf("loop all good!\n");
-		}*/
 		doc++;
 		index++;
 		
