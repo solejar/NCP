@@ -107,6 +107,94 @@ if(1!=fread(arr,sz,1,fp))
 
 `int connect(int sockfd, struct sockaddr *serv_addr, int addrlen)`
 
+Week 5 - Server/Client:
+	Server:
+		#include <stdio.h>
+		#include <sys/socket.h>
+		#include <stdlib.h>
+		#include <netinet/in.h>
+		#include <string.h>
+		#include <unistd.h>
+
+		first initialize variables (serverfd, newsocket) (struct sockaddr_in address) (addrlen = sizeof(address));
+		1. serverfd = socket (AF_INET, SOCK_STREAM, );
+		2. address.sin_family = AF_INET, address.sin_addr.s_addr = INADDR_ANY, address.sin_port = htons(PORT);
+		3. bind(server_fd, (struct sockaddr *)&address, sizeof(address))
+		4. listen(serverfd, 1024);
+		5. (new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen))
+		6. read/write from new socket.
+
+	Client:
+		#include <stdio.h>
+		#include <sys/socket.h>
+		#include <stdlib.h>
+		#include <netinet/in.h>
+		#include <string.h>
+		#include <unistd.h>
+		#include <arpa/inet.h>
+
+		initialize vars again
+		1. sock = socket(AF_INET, SOCK_STREAM, 0)
+		2. memset(&serv_addr, '0', sizeof(serv_addr))
+		3. serv_addr.sin_family = AF_INET; serv_addr.sin_port = htons(PORT);
+		4. inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)
+		5. connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr))
+		6. read/write to sock
+
+Week 6:
+	Multiple Client Server:
+		while(1){
+	        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, 
+	                       (socklen_t*)&addrlen))<0)
+	        {
+	            perror("accept");
+	            exit(EXIT_FAILURE);
+	        }
+	        valread = read( new_socket , buffer, 1024);
+	        printf("%s\n",buffer );
+	        write(new_socket, response, strlen(response)); //response from server
+	        printf("Response msg sent\n");
+	        close(new_socket);
+    	}
+
+    readnbytes:
+		ssize_t         /* Read "n" bytes from a descriptor. */
+		readnbytes(int fd, void *vptr, size_t n) {
+		    ssize_t nleft;
+		    ssize_t nread;
+		    char    *ptr;
+
+		    ptr = vptr;
+		    nleft = n;
+		    while (nleft > 0) {
+		        if ( (nread = read(fd, ptr, nleft)) < 0) { 
+		            if (errno == EINTR){     /* Interrupted by signal handler*/
+		                nread = 0;     /* and call read() again */
+		                printf("Read Failure\n");
+		            }
+		            else
+		                return(-1);
+		        } else if (nread == 0)
+		            break;              /* EOF */
+		        nleft -= nread;
+		        ptr   += nread;
+		    }
+		    return(n - nleft);      /* return >= 0 */
+		}
+
+	webserver:
+		1. serveraddr.sin_port=htons(8080);
+		2. 	for(;;) {
+			    int clientfd;
+			    if((clientfd=accept(sockfd, 0, 0)) < 0)
+			      err_exit();
+			    printf("Socket connected\n");
+			    char response[]="HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<HTML><BODY>Hello World!!!!!!!</BODY></HTML>\r\n";
+			    if(write(clientfd, response, sizeof(response)) < 0)
+			      err_exit();
+			    printf("HTTP response sent\n");
+			    close(clientfd);
+  			}
 
 
 Code to read in a request from the browser
